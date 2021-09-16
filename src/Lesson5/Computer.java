@@ -24,73 +24,71 @@ isOn boolean
 public class Computer {
     static Random random = new Random(); //статичесткие чтобы видеть по всему класу
     static Scanner scanner = new Scanner(System.in);
-    boolean procesor; //поля екзепляров
-    boolean operativka;
-    boolean zorstkijDisk;
-    int resursPolnogoCykluRaboty;
+    boolean cpu; //поля екземпляров
+    boolean ram;
+    boolean hdd;
+    int maxNumberOfShutdowns;
     boolean isOn = false; //даю по умолчанию false чтобы пометять когда включается
     boolean isDead = false; //даю по умолчанию false чтобы пометять когда сгорает компьютер
 
 
     //перегружений конструктор
-    public Computer(boolean procesor, boolean operativka, boolean zorstkijDisk, int resursPolnogoCykluRaboty) {
-        this.procesor = procesor;
-        this.operativka = operativka;
-        this.zorstkijDisk = zorstkijDisk;
-        this.resursPolnogoCykluRaboty = resursPolnogoCykluRaboty;
+    public Computer(boolean cpu, boolean ram, boolean hdd, int MaxNumberOfShutdowns) {
+        this.cpu = cpu;
+        this.ram = ram;
+        this.hdd = hdd;
+        this.maxNumberOfShutdowns = MaxNumberOfShutdowns;
     }
 
     //метод который выводить инфо про компьютер на консоль
-    void opisanie() {
+    void getDescription() {
         System.out.print("[");
-        System.out.print("Процесор: " + procesor + ", оперативка: " + operativka + ", жесткий диск: " + zorstkijDisk + ", ресурс полных циклов работы: " + resursPolnogoCykluRaboty);
-        System.out.print("]\n");
+        System.out.print("Процесор: " + cpu + ", оперативка: " + ram + ", жесткий диск: " + hdd + "," +
+                " ресурс полных циклов работы: " + maxNumberOfShutdowns);
+        System.out.println("]");
     }
 
     //проверяем на сбой
-    boolean proverkaNaZboj() {
+    boolean CheckingForFailure() {
         int randomNum = random.nextInt(2); //получаем 0 или 1 случайно
-        System.out.print("Введите число 0 или 1 -> ");
+        System.out.println("Введите число 0 или 1 -> ");
         int userNum = scanner.nextInt();               //с клавиатури получаем 0 или 1
         if (randomNum == userNum) {                   //если рандмное число и число пользователя совпадает вызов метода включить компьютер
             System.out.println("Проверка прошла успешно!");
             isDead = false;
         } else {                                                      //если рандмное число и число пользователя не совпадает
-            resursPolnogoCykluRaboty = 0;                    //обнуляем цикли
+            maxNumberOfShutdowns = 0;                    //обнуляем цикли
             isDead = true;                                               //компьютер умер потому что не прошел проверку
             System.out.print("Компьютер сгорел. ");
-            System.out.println(resursPolnogoCykluRaboty + "-> остаточный ресурс полного циклу компьютера.");
+            System.out.println(maxNumberOfShutdowns + "-> остаточный ресурс полного циклу компьютера.");
         }
         return isDead;
     }
 
-    boolean vkluchytComputer() {
-        proverkaNaZboj();  //вызов метода проверки
-        if (procesor & operativka & zorstkijDisk & resursPolnogoCykluRaboty > 0 & (!isOn) & (!isDead)) {//проверяем все ли исправно
-            isOn = true;                   //включаем компьютер
-            System.out.println("Вы включили компьютер!");
-        } else if (resursPolnogoCykluRaboty == 0 & (!isDead)) {   //проверка успешна, но циклы закончились поэтому умер
-            isDead = true; //компьютер умер
-            isOn = false;  // не может быть включен
-            System.out.println("Превышение лимита ресурса, компьютер умер :(");
+    boolean onComputer() {
+        CheckingForFailure();
+        if (!cpu || !ram || !hdd || maxNumberOfShutdowns == 0 || (isDead)) {//проверяем если хоть что-то не исправно
+            System.out.println("Невозможно включить компьютер :(");
+            isOn = false;
+            getDescription();
         } else if (isOn) {
             System.out.println("Компьютер уже был включен!");
         } else {
-            System.out.println("Невозможно включить компьютер :(");
+            isOn = true;
+            System.out.println("Компьютер включен!");
         }
         return isOn;
     }
 
-      boolean vykluchytComputer() {
-        proverkaNaZboj(); //вызов метода проверки
-        if (isOn & (!isDead)) {  //только если компьютер включен и не умер
+    boolean offComputer() {
+        CheckingForFailure(); //вызов метода проверки
+        if (isOn && (!isDead)) {  //только если компьютер включен и не умер
             isOn = false;               //выключаем
             System.out.println("Компьютер выключен вами!");
-            --resursPolnogoCykluRaboty;   //уменьшаем цикл работи на 1 при каждом выключении
+            --maxNumberOfShutdowns;   //уменьшаем цикл работи на 1 при каждом выключении
         } else {
-            System.out.println(":(");
+           System.out.println("Компьютер не был выключен.");
         }
-        System.out.println(resursPolnogoCykluRaboty + "-> остаточный ресурс полного циклу компьютера.");
         return isOn;
     }
 }
